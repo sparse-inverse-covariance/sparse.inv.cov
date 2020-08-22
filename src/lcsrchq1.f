@@ -1,0 +1,63 @@
+      SUBROUTINE LCSRCHQ1(N,X,F,G,S,STP,FTOL,XTOL,MAXFEV,INFO,NFEV,WA
+     1                  ,G1,UNDEF)
+C WRITTEN BY HK APRIL 2008
+C NOTE THE ADDED ARGUMENTS G1, UNDEF FOR STORING A DERIVATIVE VALUE AND
+C THE VALUE FOR UNDEFINED LIKELIHOODS
+
+      INTEGER N,MAXFEV,INFO,NFEV,INTERP
+      DOUBLE PRECISION F,F0,F1,STP,FTOL,GTOL,XTOL,STPMIN,STPMAX,DF1
+     1                 ,A,B,AA,STP1,UNDEF
+      DOUBLE PRECISION X(N),G(N),S(N),WA(N),G1(N)
+      COMMON /LB3/MP,LP,GTOL,STPMIN,STPMAX
+      SAVE
+C SIMPLE LINE SEARCH ALGORITHM FOR COVARIANCE SELECTION
+C ASSUMES THAT UNDEFINED FUNCTION VALUES ARE GIVEN A VERY LARGE VALUE
+      IF(INFO.EQ.-1)GO TO 20
+      NFEV=0
+      INTERP=0
+      DO 10 j=1,N
+ 10   WA(J)=X(J)
+      F0=F
+ 20   CONTINUE
+      IF(((F.EQ.UNDEF).OR.(NFEV.EQ.0)).AND.(NFEV.LE.MAXFEV))THEN
+        IF(INFO.EQ.-1) STP=STP/2
+        DO 30 J=1,N
+ 30     X(J)=WA(J)+STP*S(J)
+        NFEV=NFEV+1
+        INFO=-1
+      RETURN
+        ELSE
+        IF(INTERP.EQ.0)THEN
+C         GET DIRECTIONAL DERIVATIVE AT STP
+          STP1=STP
+          DF1=0.0D0
+          DO 40 J=1,N
+          G1(J)=G(J)
+ 40       DF1=DF1+S(J)*G(J)
+          A=DF1/STP-(F-F0)/STP**2
+          B=DF1-2*A*STP
+          AA=-B/(2*A)
+          F1=F
+c         EVALUATE FUNCTION AT STP=AA
+          STP=AA
+          DO 50 J=1,N
+ 50       X(J)=WA(J)+STP*S(J)
+          INFO=-1
+          INTERP=1
+          NFEV=NFEV+1
+          RETURN
+        ELSE
+          INFO=1
+          IF(NFEV.GT.MAXFEV)INFO=3
+C         GET BEST VALUE - EXISTING VALUES ARE FINE UNLESS F.GT.F1
+            IF(F.GT.F1)THEN
+            STP=STP1
+            DO 60 J=1,N
+            G(J)=G1(J)
+ 60         X(J)=WA(J)+STP*S(J)
+            F=F1
+            ENDIF
+         ENDIF
+      ENDIF
+      RETURN
+      END

@@ -1,0 +1,52 @@
+Thursday February 10, 2011
+Added options in hd.covsel for user defined initial values, and printing of results every
+"verbose" iterations. Corresponding changes made to lbfgsnew.f and lb1new.f added.
+Also added new  function sigma.hat
+--------------------------------------------------------------
+Friday, November 19, 2010
+added options  lars.type="stepwise",lars.normalise=TRUE, lars.intercept = TRUE,
+ BIC01.only=FALSE
+--------------------------------------------------------------
+Wednesday, September  8, 2010
+added  
+A<-as(A,"dgCMatrix")   # added to force this
+to hd.covsel.s
+
+-------------------------------------------------------------
+Saturday, July 17, 2010
+
+get.neighbs2.r contains get.neighbs2
+reg.select2.r  reg.select2
+get.neighbs2 calls  reg.select2 -- this is the old version
+
+get.neighbs3.r contains get.neighbs
+reg.select3.r  reg.select
+get.neighbs calls  reg.select -- this is the new version using lars
+
+
+modified hd.covsel.s to return  nas, naf
+may 16 2001 - version 0.5.1
+changed reg.select to add lar and lasso options
+didnt allow for occasional dropping of variables by lasso
+may 17
+fixed to allow dropping of variables
+new version  0.6.1
+may 17  - version 0.7.1
+added correlation thresholding functions
+corr.thresh and get.thresh.adj
+may24 2011 -version 0.7.2
+added option lars.normailse to function get.neighbs
+may31 versiom 0.8.2
+removed normailse option made defualt=T do scaling outside lars
+to speed it up
+8 june
+added function hd.covsel.eq for fitting with equality constraints
+on regression parameters and residual variances
+16 june 2011
+add option to fit equalities in partial correlation parameterisation
+July 4 changed reg.select  loop limit of kmax=1 changed to length(isav)
+to prevent occasional index out of bbounds
+July 11 changed default corr=TRUE to corr=FALSE in hd.covsel and hd.covsel.eq
+also added function to transform data to multivariate normal distribution
+Nov 9 2011 added namespace for new version of R
+June 15 2012 enabled extraction of loglikelihood value at solution

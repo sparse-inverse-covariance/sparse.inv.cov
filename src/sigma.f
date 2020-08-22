@@ -1,0 +1,36 @@
+C
+      SUBROUTINE SIGMA (N, X, F,IAF,JAF,AF,L,IASUB,CMULTA,
+     1                  PERM,PERMI,ILT,JLT,LT,A,AT,P)
+      DOUBLE PRECISION  X(N), F, T ,AF(*),L(*),LD,TR,
+     1                  CMULTA(*),LT(*),A(*),AT(*)
+      INTEGER IAF(*),JAF(*),IFLAG ,NAF,N,IASUB(*),PERM(*),ILT(*),JLT(*),
+     1         P,PERMI(*)
+C
+C ROUTINE TO EVALUATE SIGMA AT FILLIN POSITIONS
+C
+        NAF=IAF(P+1)-1
+       CALL RZERO(NAF,AT)
+       Call RZERO(NAF,A)
+       DO 5 I=1,N
+ 5     AF(IASUB(I))=X(I)
+C COMPUTE SPARSE CHOLESKY FACTOR OF SIGMA INVERSE
+C not needed now
+C       CALL SPCHOL(P,IAF,JAF,AF,L,NAF,IFLAG)
+
+       IF(IFLAG.EQ.1)THEN
+       F=1.0D38
+       RETURN
+       ENDIF
+       
+       DO 7 I=1,NAF
+7      LT(I)=L(PERM(I))
+
+C COMPUTE ELEMENTS OF SIGMA
+
+       CALL SPTAKAHASHI(P,PERMI,IAF,JAF,L,ILT,JLT,LT,A,AT,NAF)
+      
+       RETURN
+       END
+
+
+       

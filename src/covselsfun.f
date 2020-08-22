@@ -1,0 +1,53 @@
+C
+      SUBROUTINE SFUN (N, X, F, G,IAF,JAF,AF,L,S,IASUB,CMULTA,
+     1                  PERM,PERMI,ILT,JLT,LT,A,AT,P)
+      DOUBLE PRECISION  X(N), G(N), F, T ,AF(*),L(*),S(*),LD,TR,
+     1                  CMULTA(*),LT(*),A(*),AT(*)
+      INTEGER IAF(*),JAF(*),IFLAG ,NAF,N,IASUB(*),PERM(*),ILT(*),JLT(*),
+     1         P,PERMI(*)
+C
+C ROUTINE TO EVALUATE FUNCTION (F) AND GRADIENT (G) OF THE OBJECTIVE
+C FUNCTION AT THE POINT X     (N=NA0)
+C
+        NAF=IAF(P+1)-1
+c       CALL RZERO(NAF,AF)
+c       CALL RZERO(NAF,LT)
+       CALL RZERO(NAF,AT)
+       Call RZERO(NAF,A)
+       DO 5 I=1,N
+ 5     AF(IASUB(I))=X(I)
+C COMPUTE SPARSE CHOLESKY FACTOR OF SIGMA INVERSE
+
+       CALL SPCHOL(P,IAF,JAF,AF,L,NAF,IFLAG) 
+
+       IF(IFLAG.EQ.1)THEN
+       F=1.0D38
+       RETURN
+       ENDIF
+       
+       DO 7 I=1,NAF
+7      LT(I)=L(PERM(I))
+C COMPUTE LOG DETERMINANT
+       LD=0.0D0
+       DO 10 I=1,P
+ 10    LD=LD+DLOG(L(IAF(I+1)-1))
+       LD=2.0D0*LD
+C COMPUTE TRACE TERM
+       TR=0.0D0
+       DO 20 I=1,N
+ 20    TR=TR+AF(IASUB(I))*S(I)*CMULTA(I)
+       F=-(LD-TR)
+C FOR DERIVATIVE COMPUTE ELEMENTS OF SIGMA
+C       DO 25 I=1,NAF
+C25    LT(I)=L(PERM(I))
+
+       CALL SPTAKAHASHI(P,PERMI,IAF,JAF,L,ILT,JLT,LT,A,AT,NAF)
+
+       DO 30 I=1,N
+ 30    G(I)=-(A(IASUB(I))-S(I))*CMULTA(I)
+      
+       RETURN
+       END
+
+
+       

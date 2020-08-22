@@ -1,0 +1,12 @@
+MY_FFLAGS=$(R_XTRA_FFLAGS) $(FPICFLAGS) $(SHLIB_FFLAGS) $(SAFE_FFLAGS)
+
+SOURCES=  covselsfun.f dhess.f getperms.f lbfgsnew.f lcsrch.f lcsrchq1.f \
+mapit.f sort.f sparse_takahashi.f spchol.f spcovmat.f write.f driver.f lb1new.f \
+getsigma.f sigma.f histupd.f iprod.f quick_sort1.f  sortit0.f thresh.f \
+drivereq.f getg.f amux.f atmux.f gtosi.f dldgcalc.f dldrcalc.f rho2si.f
+
+OBJECTS = $(SOURCES:.f=.o)
+
+
+all: $(SHLIB)
+
