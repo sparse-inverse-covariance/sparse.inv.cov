@@ -13,7 +13,7 @@ reg.select<-function(X,y,kmax=5,ff=1,N=nrow(X),
 # kmax -(>1) maximum size of selected mmodel including constant-no  (forward selection stops at this size)
 # ff - value for fudge factor in modified BIC (can be zero)
 # forward selection - always put constant in first
-require(lars)
+# require(lars) packages already attached by Depends
 p<-ncol(X)
 res<-lars(X,y,type=lars.type,max.steps=kmax,use.Gram=FALSE,normalize=lars.normalise,
           intercept=lars.intercept)

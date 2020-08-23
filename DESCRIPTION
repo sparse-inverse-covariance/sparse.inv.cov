@@ -1,14 +1,14 @@
 Package: sparse.inv.cov
-Version: 1.0.4
-Date: 16-06-2011
-Title: Fitting very Large Sparse Gaussian Graphical models
+Version: 1.0.5
+Date: 22-08-2020
+Title: Fitting Very Large Sparse Gaussian Graphical Models
 Author: Harri Kiiveri
-Maintainer: <rob.dunne@csiro.au>
-Depends: R (>= 1.8.0),lars,Matrix
+Maintainer: Rob Dunne <rob.dunne@csiro.au>
+Depends: R (>= 1.8.0)
+Imports: lars, Matrix, methods
 Suggests: MASS
 Description: Fits very large sparse covariance selection models using efficient calculations for gradients and likelihood values.
 License: GPL (>= 2)
-URL: http://www.r-project.org, http://www.another.url
-BugReports: http://pkgname.bugtracker.url
+URL: https://www.r-project.org
 Packaged: 2020-08-21 10:18:15 UTC; dun280
 NeedsCompilation: yes

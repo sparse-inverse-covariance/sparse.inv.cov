@@ -9,7 +9,7 @@ get.neighbs<-function(X,kmax=trunc(nrow(X)/10),ff=0,cols=1:ncol(X),
     # output is a sparse dgCMatrix  a with nonzero elements equal to 1 or 2
     # elements which are 2 appear in both regressions y on x and x on y
     # cols - specify which cols to do - useful for cluster computing to speed things up
-    require(Matrix)
+    # require(Matrix) packages already attached by Depends
     # compute scale factors and scale matrix outside of lars for efficiency
      sf<-colSums(X*X)
      sf<-sf^0.5

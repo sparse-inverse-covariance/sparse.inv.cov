@@ -31,7 +31,7 @@ hd.covsel<-function(X,A,nsamp,eps=1e-4,corr=FALSE,method="lbfgs",m=20,
     L<-as(t(L),"dgCMatrix") # row rep = col rep of transpose
     # what is L
     
-    X<-scale(X,center=TRUE,sc=corr)
+    X<-scale(X,center=TRUE,scale=corr)
     if(corr){
       X<-X*(nsamp/(nsamp-1))^0.5
     }

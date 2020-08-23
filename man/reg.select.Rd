@@ -4,10 +4,12 @@
 reg.select
 }
 \description{
-Finds predictors of y from among the columns of X using forward stepwise regression and 5 different BIC criteria
+Finds predictors of y from among the columns of X using forward stepwise
+regression and 5 different BIC criteria
 }
 \usage{
-reg.select(X, y, kmax = 5, ff = 1, N = nrow(X),lars.type="stepwise",lars.normalise=TRUE, lars.intercept = TRUE)
+reg.select(X, y, kmax = 5, ff = 1, N = nrow(X),lars.type="stepwise",
+lars.normalise=TRUE, lars.intercept = TRUE)
 }
 
 \arguments{
@@ -26,7 +28,8 @@ Real scalar constsant to be added to mean residual summ of squares fro one versi
   \item{N}{
 Real scalar - the value of N to use in the usual BIC
 }
-\item{lars.type}{character -type of variable selection used in lars - "stepwise" or "lasso" or "lar"}
+\item{lars.type}{character -type of variable selection used in lars -
+  "stepwise" or "lasso" or "lar"}
 \item{lars.normalise}{logical - controls normalise option in lars}
 \item{lars.intercept}{logical - whether to include intercept in model or not}
 }
@@ -41,23 +44,28 @@ BICff - the usual BIC with constant ff added to the mean residual sum of squares
 }
 \value{
 A list with components
-\item{selected }{A list with 5 components. The variables selected by BICg for g=0,0.5,1.0, BIC2p and BICff. The length of the component is zero.
+\item{selected }{A list with 5 components. The variables selected by
+  BICg for g=0,0.5,1.0,  BIC2p and BICff. The length of the component is zero.
 if no variables selected}
 \item{bics}{A kmax by 5 matrix with colums the BIC values for the 5 BICs in the order described above.}
 }
 \references{
-An H, Huang D,  Yao Q, Zhang C: Stepwise Searching for Feature Variables in High-Dimensional Linear Regression. Available at 
+An H, Huang D,  Yao Q, Zhang C: Stepwise Searching for Feature Variables
+in High-Dimensional Linear Regression. Available at 
 \url{http://stats.lse.ac.uk/q.yao/qyao.links/paper/ahyz08.pdf} ,(2008).
 
-Chen J, Chen Z: Extended Bayesian information criteria for model selection with large model spaces. Biometrika (2008), 95 ,3:759-771.
+Chen J, Chen Z: Extended Bayesian information criteria for model
+selection with large model spaces. Biometrika (2008), 95 ,3:759-771.
 
-Efron B, Hastie T, Johnston I, Tibshirani, R: Least Angle Regression (with discussion). Ann. Math. Stat (2004), 32, 2:407-499
+Efron B, Hastie T, Johnston I, Tibshirani, R: Least Angle Regression
+(with discussion). Ann. Math. Stat (2004), 32, 2:407-499
 }
 \author{
 Harri Kiiveri
 }
 \note{
-The columns of X should be mean centred, i.e it is the residual matrix after any mean structure has been removed.
+The columns of X should be mean centred, i.e it is the residual matrix
+after any mean structure has been removed.
 }
 \seealso{
 \code{\link{get.neighbs}}

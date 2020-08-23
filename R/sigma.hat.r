@@ -1,4 +1,4 @@
-             sigma.hat<-function(si,rows,entire.rows=FALSE,col.names=NULL)
+             sigmahat<-function(si,rows,entire.rows=FALSE,col.names=NULL)
              {
              # computes the "rows" of the fitted covariance matrix from a sparse representation of
              # the fitted  inverse covariance  si

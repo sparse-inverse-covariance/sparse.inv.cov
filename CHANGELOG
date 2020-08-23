@@ -1,3 +1,33 @@
+Sunday, August 23, 2020
+many changes to get through the cran submission test suite
+
+1) remove  require(packages) as packages already attached by Depends
+2) a function named sigma.hat will be invoked by the generic sigma for class hat, so do not name functions in this style
+changed to sigmahat 
+sed -e "s/sigma.hat/sigmahat/" --in-place */*
+3) DESCRIPTION file
+ a) fixed emails
+ b) removed BugReports: http://pkgname.bugtracker.url as we dont have a bug report url
+ c) we dont have a URL (if it is on github I think we will have one)
+4) removed First.lib
+5) lots of  "no visible global function definition for" mesages. Fixed with
+NAMESPACE 
+  importFrom("methods", "as", "new")
+  importFrom("stats", "ecdf", "lm", "qnorm", "rnorm", "var")
+DESCRIPTION Imports: 'methods'
+6) removed redundant files
+7) fixed code in hd.covsel.eq.Rd
+8) vignettes
+a) create the vignettes folder in your package directory.
+b) put your static pdf there.
+c) Create a .Rnw file 
+
+
+
+
+
+
+	
 Thursday February 10, 2011
 Added options in hd.covsel for user defined initial values, and printing of results every
 "verbose" iterations. Corresponding changes made to lbfgsnew.f and lb1new.f added.

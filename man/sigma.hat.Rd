@@ -1,5 +1,5 @@
-\name{sigma.hat}
-\alias{sigma.hat}
+\name{sigmahat}
+\alias{sigmahat}
 \title{
 Computes specified rows or block diagonals of the covariance matrix corresponding to a given sparse inverse covariance matrix.
 }
@@ -7,7 +7,7 @@ Computes specified rows or block diagonals of the covariance matrix correspondin
 Uses sparse matrix calculations to calculate specified elements of the covariance matrix for a sparse covariance selection model 
 }
 \usage{
-sigma.hat(si, rows, entire.rows = FALSE, col.names = NULL)
+sigmahat(si, rows, entire.rows = FALSE, col.names = NULL)
 }
 
 \arguments{
@@ -52,9 +52,9 @@ sinv<-as(sinv,"dsCMatrix")
 # look at covariance matrix
 solve(sinv)
 # get rows 2,3,and 4 od sigma
-sigma.hat(sinv,rows=c(2,3,4),entire.rows=TRUE)
+sigmahat(sinv,rows=c(2,3,4),entire.rows=TRUE)
 # get only block diagonal
-sigma.hat(sinv,rows=c(2,3,4),entire.rows=FALSE)
+sigmahat(sinv,rows=c(2,3,4),entire.rows=FALSE)
 }
 \keyword{ multivariate }
 
