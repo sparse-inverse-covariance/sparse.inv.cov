@@ -1,0 +1,7 @@
+\documentclass{article}
+\usepackage{pdfpages}
+%\VignetteIndexEntry{workflow}
+
+\begin{document}
+\includepdf[pages=-, fitpaper=true]{v1.pdf}
+\end{document}
