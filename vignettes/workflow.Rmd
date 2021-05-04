@@ -1,0 +1,91 @@
+---
+title: "Typical workflow for using the sparse.inv.cov R library"
+date: "Saturday, August  8, 2020"
+output:
+  pdf_document
+---
+
+It is recommended that the reader runs the code here in R and also consults the help
+files in the library.
+
+# Get data
+For illustrative purposes here we simulate some data with known structure. First
+we generate the $\Sigma^{-1}$ matrix. 
+
+```{r, echo=TRUE,eval=FALSE}
+sinv<-diag(5)/
+sinv[1,2]=sinv[2,3]=sinv[3,4]=sinv[4,5]=0.
+sinv<-sinv+t(sinv)
+sinv<-as(sinv,"dsCMatrix")
+```
+Then we generate data with mean zero and inverse covariance matrix sinv
+```{r, echo=TRUE,eval=FALSE}
+res<-Simulate(sigma.inv=sinv,M=NULL,nsamp=1000,nsim=1,seed=1)
+X<-res$data[[1]]
+```
+We mean correct each column
+```{r, echo=TRUE,eval=FALSE}
+X<-scale(X,center=TRUE,sc=FALSE)
+```
+more generally regress each column of X on the design matrix and replace it with
+the residuals. We check the means
+```{r, echo=TRUE,eval=FALSE}
+colMeans(X)
+```
+check structure in observed sample inverse and compare with the true inverse
+```{r, echo=TRUE,eval=FALSE}
+solve(crossprod(X)/1000)
+sinv
+```
+# Find zero pattern
+
+there can be at most 4 neighbours for each variable here. We
+generally want m/n <1/20 where m is the number of neighbours of a variable
+```{r, echo=TRUE,eval=FALSE}
+res<-get.neighbs(X,kmax=4)
+```
+For a discussion of the parameter kmax see Kiiveri(2011).
+
+## example of splitting the job over two processors to speed things up
+on processor 1
+```{r, echo=TRUE,eval=FALSE}
+res1<-get.neighbs(X,kmax=4,cols=1:2)
+save(res1,file="mydir/res1.RData")
+```
+and on processor 2
+```{r, echo=TRUE,eval=FALSE}
+res2<-get.neighbs(X,kmax=4,cols=3:5)
+save(res2,file="mydir/res2.RData")
+```
+then combine results
+```{r, echo=TRUE,eval=FALSE}
+load("mydir/res1.RData")
+load("mydir/res2.RData")
+```
+get incidence matrix for all variables
+```{r, echo=TRUE,eval=FALSE}
+a00<-res1$a00+res2$a00
+```
+ similar results apply for a05 a01 etc.
+The nonzero entries in a00 could be reset to 1 but typically it doesn’t matter for
+further processing. The generalisation to more than 2 processors should be clear
+
+# Fit covariance selection model using default parameters
+use res\$a00 here (the usual BIC) because n is much greater than p. When p>>n use
+res$a01 from the previous step.
+```{r, echo=TRUE,eval=FALSE}
+tmp<-hd.covsel(X, res$a00, nsamp=nrow(X),corr=FALSE)
+```
+look at fitted inverse matrix
+```{r, echo=TRUE,eval=FALSE}
+tmp$sigma.inv
+```
+look at fitted covariance matrix in positions where sigma.inv is not zero
+```{r, echo=TRUE,eval=FALSE}
+tmp$sigma
+```
+
+Reference
+Kiiieri(2011) Multivariate analysis of microarray data: differential expression and
+differential connection. BMC Bioinformatics
+
