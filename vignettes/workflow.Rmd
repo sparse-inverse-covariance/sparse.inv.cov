@@ -1,10 +1,22 @@
 ---
-title: "Typical workflow for using the sparse.inv.cov R library"
-date: "Saturday, August  8, 2020"
-output:
-  pdf_document
+title:  "Typical workflow for using the sparse.inv.cov R library"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{my-stuff}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
 
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(sparse.inv.cov)
+```
 It is recommended that the reader runs the code here in R and also consults the help
 files in the library.
 
