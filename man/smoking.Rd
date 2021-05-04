@@ -5,10 +5,10 @@
 \alias{smoking}
 \title{Effects of cigarette smoke on the human airway epithelial cell transcriptome}
 \format{
-A data frame with 51 rows and 22283 variables:
+A list with rma (the transcript data) and y (the class labels):
 \describe{
-  \item{price}{price, in US dollars}
-  \item{carat}{weight of the diamond, in carats}
+  \item{rma}{ 51 by  22283, log2 real values }
+  \item{y}{a character vector, "smoking" and "never-smoked"}
   ...
 }
 }
@@ -19,6 +19,6 @@ A data frame with 51 rows and 22283 variables:
 smoking
 }
 \description{
-A dataset containing 22283 transcript measurements for 51 subjects
+A dataset containing normalized transcript measurements for 51 subjects and 22283 transcripts
 }
 \keyword{datasets}
