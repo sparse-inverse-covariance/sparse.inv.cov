@@ -1,0 +1,143 @@
+---
+title: "Reproducing the fitted inverse covariance matrix used in the  paper"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{smoking-example}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(sparse.inv.cov)
+```
+
+
+
+# pre-processing the smoking data
+
+The data used to illustrate the method implemented in mvama was discussed in: Spira, A. et
+al. (2004). Effects of cigarette smoke on the human airway epithelial cell transcriptome. Proc. Natl
+Acad. Sci. USA, 101, 10143-10148.  The raw data may be obtained from the NCBI at
+\url{http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE994}. Only CEL files corresponding to
+'smokers' and 'never smokers were used in the paper; these correspond to Accession IDs GSM15684-
+15717 and GSM15718-15740, respectively.  Once the compressed CEL files (GSM15XYZ.CEL.gz) have been
+downloaded to a directory, they can be read in and rma-corrected as follows: usiing the following
+Bioconductor (http://www.bioconductor.org) packages:
+
+```{r, echo=TRUE,eval=FALSE}
+require(affy)
+require(limma)
+require(hgu133acdf)
+data <- ReadAffy(celfile.path = "/path_to_CEL_files", compress = TRUE)
+```
+Carry out rma correction
+```{r, echo=TRUE,eval=FALSE}
+rma.data <- rma(data)
+```
+Note that this is equivalent to using the function 'expresso' as follows:
+```{r, echo=TRUE,eval=FALSE}
+rma.data <- expresso(data,
+bgcorrect.method = "rma",
+normalize.method = "quantiles",
+pmcorrect.method = "pmonly",
+summary.method = "medianpolish")
+```
+
+And finally,
+```{r, echo=TRUE,eval=FALSE}
+rma.data <- t(exprs(rma.data))
+```
+which gives a 57 x 22283 matrix where the first 34 rows correspond
+to 'smokers', and the next 23 correspond to 'never
+nmokers'. Consequently, the vector of class labels y can be
+generated as
+```{r, echo=TRUE,eval=FALSE}
+y <- rep(1:2, times = c(34, 23))
+```
+
+
+# create the R workspace smoking.RData
+The pre-processed data set is now included in the 
+```{r, echo=TRUE,eval=FALSE}
+library(sparse.inv.cov)
+data(smoking,package="sparse.inv.cov")
+data(smoking,package="sparse.inv.cov")
+names(smoking)
+#[1] "y"   "rma"
+head(smoking$y)
+# "smokers" "smokers" "smokers" "smokers" "smokers" "smokers"
+smoking$rma[1:3,1:5]
+#                1007_s_at  1053_at   117_at   121_at 1255_g_at
+#GSM15684.CEL.gz  9.553334 4.182281 5.552527 7.984070  4.267715
+#GSM15685.CEL.gz 10.025818 4.401058 5.120846 7.879789  3.806086
+#GSM15686.CEL.gz  9.640811 4.327433 5.682144 7.957257  3.984375
+```
+
+generate the design matrix
+```{r, echo=TRUE,eval=FALSE}
+D<-matrix(0,nrow=57,ncol=2)
+D[,1]<-as.numeric(y==2)
+D[,2]<-as.numeric(y==1)
+```
+save to smoking.RData
+```{r, echo=TRUE,eval=FALSE}
+x<-rma.data
+```
+%The first 5 rows and columns of x should be
+%X1007_s_at X1053_at X117_at X121_at X1255_g_at
+%[1,] 9.729530 4.169440 5.599752 8.113206 4.
+%[2,] 10.172280 4.381633 5.166447 8.025542 3.
+%[3,] 9.801157 4.335081 5.696982 8.079880 3.
+%[4,] 10.084170 4.025541 5.193149 7.842162 3.
+%[5,] 9.765211 4.142204 5.378281 7.858246 3.
+
+# Compute the residual matrix after removing mean structure.
+```{r, echo=TRUE,eval=FALSE}
+R<-lm(x~D-1)$residuals
+```
+# Determine zero pattern
+
+```{r, echo=TRUE,eval=FALSE}
+library(Matrix)
+library(spars.inv.cov)
+```
+single run if you have the time and patience
+```{r, echo=TRUE,eval=FALSE}
+res<-get.neighbs(R,kmax=3)
+a<-res$a01
+```
+use modified BIC with g=1
+
+## split it over more processors, 
+in this case 5,  Source the scripts nb.script1.r to nb.script5.r on separate processors.
+These scripts may need to be edited so that the load and save statements
+read and write from a specified directory. After these jobs have finished, running R
+in the common directory and sourcing the script nb.collate.r produces the list
+bres10. From this set
+```{r, echo=TRUE,eval=FALSE}
+a<-bres10$a
+```
+
+# Fit the inverse covariance matrix
+
+```{r, echo=TRUE,eval=FALSE}
+    res<-hd.covsel(R,a,nsamp=57,corr=TRUE,eps=.01,m=200)
+```
+depending on your processor speed the fit could take between 1 and 2 days
+larger values of m might reduce this
+
+# compute inverse covariance matrix from fitted inverse correlation matrix
+assumes residual matrix R is available as well as Matrix library
+```{r, echo=TRUE,eval=FALSE}
+sd<-apply(R,2,var)56/
+sd<-sd^0.
+d<-Diagonal(length(sd),1/sd)
+sinv<-d%%res$si%*%d
+```
