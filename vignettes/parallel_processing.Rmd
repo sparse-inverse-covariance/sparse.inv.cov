@@ -1,0 +1,57 @@
+---
+title: "Reproducing the fitted inverse covariance matrix used in the  paper"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{smoking-example}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(sparse.inv.cov)
+```
+
+## Introduction
+
+We start with our matrix $X$.
+This could be the smoking data matrix as described in 
+
+```{r, echo=TRUE,eval=FALSE}
+     vignette("BMCsmokingex")
+```
+or another data matrix. We proceed with the smoking data example.
+
+
+## using mclapply(List, FUN, ...
+
+mclapply is a parallelized version of lapply, it returns a list of the same length as List, each element of which is the
+result of applying FUN to the corresponding element of X. 
+
+- we make a list of the indices of X -- this is aa
+- we make a function, run1, that take an index i and  applies get.neighbs to the columns aa[i]
+- mclapply applies run1 to the elements of  1:7 and teturns a list
+
+```{r, echo=TRUE,eval=FALSE}
+aa<-splitIndices(22283, 7)
+run1<-function(x,aa=aa){
+    res<-get.neighbs(X ,kmax=3,cols=aa[[x]],BIC01.only=TRUE)
+    return(res)
+}
+
+temp<-mclapply(1:7, FUN=run1, aa, mc.cores=7)
+
+class(temp[[1]]$a01)
+#[1] "dgCMatrix"
+#attr(,"package")
+#[1] "Matrix"
+
+a01<- temp[[5]]$a01+temp[[6]]$a01+temp2[[3]]$a01+temp2[[5]]$a01+temp3[[2]]$a01+temp3[[3]]$a01+temp4[[1]]$a01
+
+```
