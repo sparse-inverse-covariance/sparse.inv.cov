@@ -1,6 +1,9 @@
 ---
 title: "Parallel Processing for get.neighbs"
-output: rmarkdown::html_vignette
+output: 
+  rmarkdown::html_vignette:
+    toc: true
+    toc_depth: 2
 vignette: >
   %\VignetteIndexEntry{smoking-example}
   %\VignetteEngine{knitr::rmarkdown}
@@ -24,10 +27,17 @@ We start with our matrix $X$.
 This could be the smoking data matrix as described in 
 
 ```{r, echo=TRUE,eval=FALSE}
-     vignette("BMCsmokingex")
+vignette("BMCsmokingex")
+ 
 ```
-or another data matrix. We proceed with the smoking data example.
+or another data matrix. We proceed with the smoking data example, assuming that we have processed it as in BMCsmokingex,
+so we are working on a matrix of residuals R. We can do a single run 
+```{r, echo=TRUE,eval=FALSE}
+res<-get.neighbs(R,kmax=3,BIC01.only=TRUE)
+a01 <- res$a01
 
+```
+we the code is easily paralllelizable if we have mutliptle processons. 
 
 ## using mclapply(List, FUN, ...
 
@@ -41,23 +51,27 @@ result of applying FUN to the corresponding element of List.
 ```{r, echo=TRUE,eval=FALSE}
 aa<-splitIndices(22283, 7)
 run1<-function(x,aa=aa){
-    res<-get.neighbs(X ,kmax=3,cols=aa[[x]],BIC01.only=TRUE)
+    res<-get.neighbs(R ,kmax=3,cols=aa[[x]],BIC01.only=TRUE)
     return(res)
 }
 
-temp<-mclapply(1:7, FUN=run1, aa, mc.cores=7)
-
+system.time(temp<-mclapply(1:7, FUN=run1, aa, mc.cores=7))
+user     system  elapsed
+#3230.763 6139.535 1469.639 
 class(temp[[1]]$a01)
 #[1] "dgCMatrix"
 #attr(,"package")
 #[1] "Matrix"
 
-a01<- temp[[5]]$a01+temp[[6]]$a01+temp2[[3]]$a01+temp2[[5]]$a01+temp3[[2]]$a01+temp3[[3]]$a01+temp4[[1]]$a01
+a01<- temp[[1]]$a01+temp[[2]]$a01+temp[[3]]$a01+temp[[4]]$a01+temp[[5]]$a01+temp[[6]]$a01+temp[[7]]$a01
+diag(a01)<- 0
+a01[a01>1] <-1
 
 ```
+This is now in aa adjacency matrix in a  suitable form for further processing.
 
 ## using doParallel and foreach
-
+alternatively we can use the functions doParallel and foreach
 
 ```{r, echo=TRUE,eval=FALSE}
 
@@ -91,21 +105,20 @@ sf <- sf^0.5
 X <- sweep(X, 2, sf, "/")
 ```
 Now that we have the data set up, we dismantle get.neighbs and use the workhorse
-reg.select directly.
-The only change is that we replace
+reg.select directly. The only change is that we replace
 ```{r, echo=TRUE,eval=FALSE}
 for (i in cols) {#do stuff
     }
 ```
-with
+with a parallelized version
+
 ```{r, echo=TRUE,eval=FALSE}
 foreach (i=cols) %dopar% { #do stuff
     }
 ```
-
+Here is what the whole code looks like
 
 ```{r, echo=TRUE,eval=FALSE}
-    
 cols  <-  1:ncol(X)
 ff  <-  0
 lars.type <- "stepwise"
@@ -187,8 +200,6 @@ regsel <- foreach (i=cols) %dopar% {
 } # end  "for (i in cols)"
 )
 
-save(regsel,file='regsel.Rdata')
-q()
 regsel  <-  unlist(regsel, recursive=F)
 # unlist() gets rid of NULLs
 ii00  <-  unlist(regsel[names(regsel) == 'ii00'])
@@ -245,24 +256,10 @@ if (BIC01.only == TRUE) {
 }
 
 
+
 a01<-result[[1]]
 diag(a01)<-0
 temp1 <- colSums(a01)
 temp2<- rowSums(a01)
-
-
-
-
-
-print("saving result file!")
-save(a01,file=paste("result",filename, sep="_"))
-#  	temp3 <- Reduce("+", result) #commented out. I think the Reduce may be having problems with
-#  	temp3[temp3!=0]<-1           # the size of the matrix
-#  
-#  	if (mpi.comm.rank() == 0) {
-#    		save(temp3,file=paste("result",filename, sep="_"))
-#  	}
-
-
 
 ```

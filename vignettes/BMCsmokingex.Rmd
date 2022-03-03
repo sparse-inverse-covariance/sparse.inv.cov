@@ -80,6 +80,9 @@ smoking$rma[1:3,1:5]
 #GSM15684.CEL.gz  9.553334 4.182281 5.552527 7.984070  4.267715
 #GSM15685.CEL.gz 10.025818 4.401058 5.120846 7.879789  3.806086
 #GSM15686.CEL.gz  9.640811 4.327433 5.682144 7.957257  3.984375
+
+X<-smoking$rma
+
 ```
 
 # Compute the residual matrix after removing mean structure.
@@ -90,7 +93,8 @@ D<-matrix(0,nrow=57,ncol=2)
 D[,1]<-as.numeric(y==2)
 D[,2]<-as.numeric(y==1)
 
-R<-lm(x~D-1)$residuals
+R<-lm(X~D-1)$residuals
+
 ```
 # Determine zero pattern
 
@@ -105,7 +109,13 @@ res<-get.neighbs(R,kmax=3)
 a01 <- res$a01
 
 ```
-use modified BIC with g=1
+use modified BIC with g=1.
+The computation is easily paralllelizable if we have mutliptle processons. 
+```{r, echo=TRUE,eval=FALSE}
+vignette(parallel_processing)
+
+```
+gives further details.
 
 <!-- ## split it over more processors,  -->
 <!-- in this case 5,  Source the scripts nb.script1.r to nb.script5.r on separate processors. -->
