@@ -1,82 +1,5 @@
----
-title: "Parallel Processing for get.neighbs"
-output: 
-  rmarkdown::html_vignette:
-    toc: true
-    toc_depth: 2
-vignette: >
-  %\VignetteIndexEntry{Parallel Processing}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
----
-
-```{r, include = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>"
-)
-```
-
-```{r setup}
-library(sparse.inv.cov)
-library(doParallel)
-library(Matrix)
-
-```
-
-## Introduction
-
-We start with our matrix $X$.
-This could be the smoking data matrix as described in 
-
-```{r, echo=TRUE,eval=FALSE}
-vignette("BMCsmokingex")
- 
-```
-or another data matrix. We proceed with the smoking data example, assuming that we have processed it as in BMCsmokingex,
-so we are working on a matrix of residuals R. We can do a single run 
-```{r, echo=TRUE,eval=FALSE}
-res<-get.neighbs(R,kmax=3,BIC01.only=TRUE)
-a01 <- res$a01
-
-```
-we the code is easily paralllelizable if we have mutliptle processons. 
-
-## using mclapply(List, FUN, ...
-
-mclapply is a parallelized version of lapply, it returns a list of the same length as List, each element of which is the
-result of applying FUN to the corresponding element of List. 
-
-- we make a list of the subsets of the indices of X -- this is aa 
-- we make a function, run1, that take an index i and  applies get.neighbs to the columns aa[i]
-- mclapply applies run1 to the elements of  1:7 and returns a list
-
-```{r, echo=TRUE,eval=FALSE}
-aa<-splitIndices(22283, 7)
-run1<-function(x,aa=aa){
-    res<-get.neighbs(R ,kmax=3,cols=aa[[x]],BIC01.only=TRUE)
-    return(res)
-}
-
-system.time(temp<-mclapply(1:7, FUN=run1, aa, mc.cores=7))
-user     system  elapsed
-#3230.763 6139.535 1469.639 
-class(temp[[1]]$a01)
-#[1] "dgCMatrix"
-#attr(,"package")
-#[1] "Matrix"
-
-a01<- temp[[1]]$a01+temp[[2]]$a01+temp[[3]]$a01+temp[[4]]$a01+temp[[5]]$a01+temp[[6]]$a01+temp[[7]]$a01
-diag(a01)<- 0
-a01[a01>1] <-1
-
-```
-This is now in an adjacency matrix in a  suitable form for further processing.
-
-## using doParallel and foreach
-alternatively we can use the functions doParallel and foreach
-
-```{r, echo=TRUE,eval=FALSE}
+# 
+#
 
 library(doParallel)  
 library(foreach)
@@ -85,12 +8,8 @@ registerDoParallel(cores = no_cores)
 
 library(sparse.inv.cov)
 packageDescription("sparse.inv.cov")
-library(Matrix)
-library(MASS)
-library(lars)
-
-
 data(smoking)
+
 table(smoking[[1]])
 dim(smoking[[2]])
 X<-smoking[[2]]
@@ -98,30 +17,48 @@ X<-smoking[[2]]
 D<-matrix(0,nrow=57,ncol=2)
 D[1:34,1]<-1
 D[35:57,2]<-1
+
 C<-matrix(c(1,-1)/2^0.5,ncol=1)
+
 R<-lm(X~D-1)$residuals
 kmax<-3
 X <-R
 
+
 sf <- colSums(X * X)
 sf <- sf^0.5
 X <- sweep(X, 2, sf, "/")
-```
-Now that we have the data set up, we dismantle get.neighbs and use the workhorse
-reg.select directly. The only change is that we replace
-```{r, echo=TRUE,eval=FALSE}
-for (i in cols) {#do stuff
-    }
-```
-with a parallelized version
 
-```{r, echo=TRUE,eval=FALSE}
-foreach (i=cols) %dopar% { #do stuff
-    }
-```
-Here is what the whole code looks like
 
-```{r, echo=TRUE,eval=FALSE}
+
+
+##############################################
+
+filename<-"/scratch1/dun280/butyrate2_temp/butyrate_residuals1.Rdata" 
+kmax<-2
+# get only input for this script
+args=(commandArgs(TRUE))
+# for each arguement evaluate the statement
+# e.g. "filename=/"some_file.Rdata/""
+for ( i in args ) {
+print(i)
+  eval(parse(text=i))
+}
+print(filename)
+
+  
+load(filename)
+#X<-scale(X,center=T,scale=F)
+print(X[1:5,1:4])
+##################################################
+
+
+
+library(sparse.inv.cov)
+library(Matrix)
+library(MASS)
+library(lars)
+    
 cols  <-  1:ncol(X)
 ff  <-  0
 lars.type <- "stepwise"
@@ -202,9 +139,9 @@ regsel <- foreach (i=cols) %dopar% {
     }
 } # end  "for (i in cols)"
 )
-#  user  system elapsed 
-#641.587   8.461  45.628
 
+save(regsel,file='regsel.Rdata')
+q()
 regsel  <-  unlist(regsel, recursive=F)
 # unlist() gets rid of NULLs
 ii00  <-  unlist(regsel[names(regsel) == 'ii00'])
@@ -261,10 +198,23 @@ if (BIC01.only == TRUE) {
 }
 
 
-
 a01<-result[[1]]
 diag(a01)<-0
 temp1 <- colSums(a01)
 temp2<- rowSums(a01)
 
-```
+
+
+
+
+print("saving result file!")
+save(a01,file=paste("result",filename, sep="_"))
+#  	temp3 <- Reduce("+", result) #commented out. I think the Reduce may be having problems with
+#  	temp3[temp3!=0]<-1           # the size of the matrix
+#  
+#  	if (mpi.comm.rank() == 0) {
+#    		save(temp3,file=paste("result",filename, sep="_"))
+#  	}
+
+
+
