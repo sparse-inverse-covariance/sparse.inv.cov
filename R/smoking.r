@@ -11,7 +11,6 @@
 #'   ...
 #' }
 #' @source \url{https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE994}
-#' @export
 "smoking"
 
 
