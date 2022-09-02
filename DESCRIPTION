@@ -17,5 +17,5 @@ URL: https://www.r-project.org
 Packaged: 2020-08-21 10:18:15 UTC; dun280
 NeedsCompilation: yes
 LazyData: true
-RoxygenNote: 7.1.1
+RoxygenNote: 7.2.1
 VignetteBuilder: knitr

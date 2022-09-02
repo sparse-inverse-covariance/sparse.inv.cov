@@ -19,6 +19,8 @@ A list with rma (the transcript data) and y (the class labels):
 smoking
 }
 \description{
-A dataset containing normalized transcript measurements for 51 subjects and 22283 transcripts
+A dataset containing normalized transcript measurements for 51 subjects and 22283 transcripts.
+See Spira et al (2004). "Gene Expression Profiling of Human Lung Tissue from Smokers with Severe Emphysema",
+Am J Respir Cell Mol Biol.
 }
 \keyword{datasets}
